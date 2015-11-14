@@ -1,0 +1,32 @@
+{
+  "name": "couchdb_changes_handler",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "engines" : {
+    "node" : ">=0.12"
+  },
+  "engineStrict" : true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ti-webdev/couchdb_changes_handler.git"
+  },
+  "dependencies": {
+    "debug": "^2.2.0",
+    "follow": "^0.12.1",
+    "pouchdb": "^5.1.0",
+    "pouchdb-upsert": "^1.1.3"
+  },
+  "keywords": [
+    "couchdb"
+  ],
+  "author": "Ti-webdev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Ti-webdev/couchdb_changes_handler/issues"
+  },
+  "homepage": "https://github.com/Ti-webdev/couchdb_changes_handler#readme"
+}
