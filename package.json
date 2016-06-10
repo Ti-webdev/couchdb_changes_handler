@@ -1,6 +1,6 @@
 {
   "name": "couchdb_changes_handler",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "engines" : {
@@ -17,7 +17,8 @@
   "dependencies": {
     "debug": "^2.2.0",
     "follow": "^0.12.1",
-    "pouchdb": "^5.2.0",
+    "pouchdb-adapter-http": "^5.4.1",
+    "pouchdb-core": "^5.4.1",
     "pouchdb-upsert": "^2.0.0"
   },
   "keywords": [
