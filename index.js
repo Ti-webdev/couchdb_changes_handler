@@ -13,7 +13,7 @@ const console = {
 }
 
 module.exports = function (seqId, followOptions, handler) {
-  let db = PouchDB(followOptions.db)
+  let db = new PouchDB(followOptions.db)
 
   let startFollow = function () {
     console.info('starting follow', followOptions)
