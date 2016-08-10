@@ -60,7 +60,11 @@ class CouchDbChangeHundler {
 
   _onChange(error, change) {
     return Promise.resolve()
-      .then(() => this._handler(error, change))
+      .then(() => this.handler(error, change))
+      .catch(e => {
+        this._logError('_onChange', error)
+        throw e
+      })
       .then(() => {
         if (error) {
           return
