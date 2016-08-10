@@ -1,12 +1,12 @@
 {
   "name": "couchdb_changes_handler",
-  "version": "1.1.4",
+  "version": "1.1.5",
   "description": "",
   "main": "index.js",
-  "engines" : {
-    "node" : ">=0.12"
+  "engines": {
+    "node": ">=0.12"
   },
-  "engineStrict" : true,
+  "engineStrict": true,
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -30,5 +30,16 @@
   "bugs": {
     "url": "https://github.com/Ti-webdev/couchdb_changes_handler/issues"
   },
-  "homepage": "https://github.com/Ti-webdev/couchdb_changes_handler#readme"
+  "homepage": "https://github.com/Ti-webdev/couchdb_changes_handler#readme",
+  "devDependencies": {
+    "express": "^4.14.0",
+    "gulp": "^3.9.1",
+    "gulp-mocha": "^3.0.0",
+    "gulp-util": "^3.0.7",
+    "pouchdb-adapter-memory": "^5.4.5",
+    "pouchdb-core": "^5.4.5",
+    "pouchdb-express-router": "0.0.9",
+    "should": "^10.0.0",
+    "sinon": "^1.17.5"
+  }
 }

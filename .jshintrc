@@ -1,5 +1,6 @@
 {
   "node": true,
+  "mocha": true,
   "esnext": true,
   "bitwise": true,
   "curly": true,
@@ -20,10 +21,6 @@
   "expr": true,
 
   "globals": {
-    "angular": false,
-    "atob": false,
-    "Blob": false,
-    "Twilio": false,
-    "navigator": false
+    
   }
 }

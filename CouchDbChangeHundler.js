@@ -13,6 +13,7 @@ class CouchDbChangeHundler {
   }
 
   start() {
+    this._started = true
     this._logInfo = debug(`${this.logTag}:info`)
     this._logError = debug(`${this.logTag}:error`)
     this._registerSigInt()
@@ -35,6 +36,12 @@ class CouchDbChangeHundler {
       .catch(error => this._logError('error get seq', error))
   }
 
+  stop() {
+    this._started = false
+    this._logInfo('stop')
+    this._feed.stop()
+  }
+
   _registerSigInt() {
     if (this.exitOnSigInt) {
       process.on('SIGINT', function() {
@@ -47,29 +54,48 @@ class CouchDbChangeHundler {
   _startFollow() {
     this._logInfo('starting follow', this.options)
 
-    let cch = this
-    this._feed = follow(this.options, (error, change) => {
-      this._feed.pause()
-      cch._onChange(error, change)
-        .then(() => {
-          this._logInfo('feed resume')
-          this._feed.resume()
-        })
+    return new Promise((resolve, reject) => {
+      this._feed = follow(this.options, (error, change) => {
+        if (error) {
+          this._logError(error)
+        }
+        else {
+          this._logInfo('change', change)
+        }
+        this._feed.pause()
+        this._onChange(error, change)
+          .then(() => {
+            if (this._started) {
+              this._logInfo('feed resume')
+              this._feed.resume()
+            }
+          })
+          .catch(error => {
+            this._logError('_onChange', error)
+            throw error
+          })
+      })
+      this._feed.on('confirm_request', resolve)
+      this._feed.on('error', reject)
+      this._feed.on('retry', () => {
+        setTimeout(() => {
+          if (!this._started) {
+            clearTimeout(this._feed.retry_timer)
+          }
+        }, 0)
+      })
     })
   }
 
   _onChange(error, change) {
     return Promise.resolve()
       .then(() => this.handler(error, change))
-      .catch(error => {
-        this._logError('_onChange', error)
-        throw error
-      })
       .then(() => {
         if (error) {
           return
         }
-        return this._db.upsert(this.seqId, function (docSeq) {
+        this._logInfo('upsert')
+        return this._db.upsert(this.seqId, (docSeq) => {
           if (!docSeq[this.seqKey] || docSeq[this.seqKey] < change.seq) {
             docSeq[this.seqKey] = change.seq
             this._logInfo('save seq', docSeq[this.seqKey])
