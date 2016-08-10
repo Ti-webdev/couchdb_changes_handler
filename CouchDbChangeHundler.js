@@ -9,11 +9,13 @@ class CouchDbChangeHundler {
   constructor() {
     this.logTag = 'cch'
     this.seqKey = 'seq'
+    this.exitOnSigInt = true
   }
 
   start() {
     this._logInfo = debug(`${this.logTag}:info`)
     this._logError = debug(`${this.logTag}:error`)
+    this._registerSigInt()
     this._db = new PouchDB(this.options.db)
 
     this._logInfo('get last seq')
@@ -31,6 +33,15 @@ class CouchDbChangeHundler {
       })
       .then(() => this._startFollow())
       .catch(error => this._logError('error get seq', error))
+  }
+
+  _registerSigInt() {
+    if (this.exitOnSigInt) {
+      process.on('SIGINT', function() {
+        process.stdout.write('\n')
+        process.exit(2)
+      })
+    }
   }
 
   _startFollow() {
