@@ -6,7 +6,7 @@ module.exports = function (seqId, followOptions, handler) {
   let cch = new CouchDbChangeHundler()
   if (arguments.length) {
     cch.seqId = seqId
-    cch.followOptions = followOptions
+    cch.options = followOptions
     cch.handler = handler
     return cch.start()
   }
