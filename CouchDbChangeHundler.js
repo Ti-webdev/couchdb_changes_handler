@@ -1,6 +1,5 @@
-const follow = require('follow')
 const debug = require('debug')
-
+const ChangesStream = require('changes-stream')
 const PouchDB = require('pouchdb-core')
   .plugin(require('pouchdb-adapter-http'))
   .plugin(require('pouchdb-upsert'))
@@ -13,7 +12,6 @@ class CouchDbChangeHundler {
   }
 
   start() {
-    this._started = true
     this._logInfo = debug(`${this.logTag}:info`)
     this._logError = debug(`${this.logTag}:error`)
     this._registerSigInt()
@@ -37,9 +35,8 @@ class CouchDbChangeHundler {
   }
 
   stop() {
-    this._started = false
     this._logInfo('stop')
-    this._feed.stop()
+    this._changeStream.destroy()
   }
 
   _registerSigInt() {
@@ -52,60 +49,49 @@ class CouchDbChangeHundler {
   }
 
   _startFollow() {
-    this._logInfo('starting follow', this.options)
+    this._logInfo('starting changes stream', this.options)
+    this._changeStream = new ChangesStream(this.options)
 
-    return new Promise((resolve, reject) => {
-      this._feed = follow(this.options, (error, change) => {
-        if (error) {
-          this._logError(error)
-        }
-        else {
-          this._logInfo('change', change)
-        }
-        this._feed.pause()
-        this._onChange(error, change)
-          .then(() => {
-            if (this._started) {
-              this._logInfo('feed resume')
-              this._feed.resume()
+    this._changeStream.on('readable', () => {
+      var change = this._changeStream.read()
+      if (this.seqId === change.id)  {
+        return
+      }
+      this._changeStream.pause()
+      Promise.resolve()
+        .then(() => this.handler(null, change))
+        .then(() => {
+          this._logInfo('upsert')
+          return this._db.upsert(this.seqId, (docSeq) => {
+            if (!docSeq[this.seqKey] || docSeq[this.seqKey] < change.seq) {
+              docSeq[this.seqKey] = change.seq
+              this._logInfo('save seq', docSeq[this.seqKey])
+              return docSeq
+            }
+            else {
+              this._logError('seq is wrong', docSeq[this.seqKey])
             }
           })
-          .catch(error => {
-            this._logError('_onChange', error)
-            throw error
-          })
-      })
-      this._feed.on('confirm_request', resolve)
-      this._feed.on('error', reject)
-      this._feed.on('retry', () => {
-        setTimeout(() => {
-          if (!this._started) {
-            clearTimeout(this._feed.retry_timer)
-          }
-        }, 0)
-      })
-    })
-  }
-
-  _onChange(error, change) {
-    return Promise.resolve()
-      .then(() => this.handler(error, change))
-      .then(() => {
-        if (error) {
-          return
-        }
-        this._logInfo('upsert')
-        return this._db.upsert(this.seqId, (docSeq) => {
-          if (!docSeq[this.seqKey] || docSeq[this.seqKey] < change.seq) {
-            docSeq[this.seqKey] = change.seq
-            this._logInfo('save seq', docSeq[this.seqKey])
-            return docSeq
-          }
-          else {
-            this._logError('seq is wrong', docSeq[this.seqKey])
-          }
         })
-      })
+        .then(() => {
+          this._logInfo('resume changes')
+          this._changeStream.resume()
+        })
+        .catch(error => {
+          this._logError('_onChange', error)
+          throw error
+        })
+    });
+
+    this._changeStream.on('error', (error) => {
+      this._changeStream.pause()
+      Promise.resolve()
+        .then(() => this.handler(error, null))
+        .then(() => {
+          this._logInfo('resume changes')
+          this._changeStream.resume()
+        })
+    })
   }
 }
 
