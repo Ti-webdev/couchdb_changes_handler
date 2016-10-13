@@ -15,7 +15,7 @@
     "url": "git+https://github.com/Ti-webdev/couchdb_changes_handler.git"
   },
   "dependencies": {
-    "changes-stream": "^2.1.0",
+    "changes-stream": "^2.1.0"
   },
   "peerDependencies": {
     "debug": "^2.2.0",
