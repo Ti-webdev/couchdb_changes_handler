@@ -63,7 +63,7 @@ class CouchDbChangeHundler {
         .then(() => {
           this._logInfo('upsert')
           return this._db.upsert(this.seqId, (docSeq) => {
-            if (!docSeq[this.seqKey] || docSeq[this.seqKey] < change.seq) {
+            if (!docSeq[this.seqKey] || parseInt(docSeq[this.seqKey], 10) < parseInt(change.seq, 10)) {
               docSeq[this.seqKey] = change.seq
               this._logInfo('save seq', docSeq[this.seqKey])
               return docSeq

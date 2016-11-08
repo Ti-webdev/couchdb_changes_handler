@@ -1,6 +1,6 @@
 {
   "name": "couchdb_changes_handler",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "",
   "main": "index.js",
   "engines": {
@@ -20,7 +20,7 @@
   "peerDependencies": {
     "debug": "^2.2.0",
     "pouchdb-adapter-http": "^6.0.6",
-    "pouchdb-core": "^6.0.6",
+    "pouchdb-core": "^6.0.7",
     "pouchdb-upsert": "^2.0.2"
   },
   "keywords": [
@@ -38,8 +38,8 @@
     "gulp": "^3.9.1",
     "gulp-mocha": "^3.0.1",
     "gulp-util": "^3.0.7",
-    "pouchdb-adapter-memory": "^6.0.6",
-    "pouchdb-core": "^6.0.6",
+    "pouchdb-adapter-memory": "^6.0.7",
+    "pouchdb-core": "^6.0.7",
     "pouchdb-express-router": "0.0.9",
     "should": "^11.1.1",
     "sinon": "^1.17.6"
