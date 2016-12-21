@@ -1,4 +1,5 @@
 const debug = require('debug')
+const stream = require('stream')
 const ChangesStream = require('changes-stream')
 const PouchDB = require('pouchdb-core')
   .plugin(require('pouchdb-adapter-http'))
@@ -51,47 +52,39 @@ class CouchDbChangeHundler {
   _startFollow() {
     this._logInfo('starting changes stream', this.options)
     this._changeStream = new ChangesStream(this.options)
-
-    this._changeStream.on('readable', () => {
-      var change = this._changeStream.read()
-      if (this.seqId === change.id)  {
-        return
-      }
-      this._changeStream.pause()
-      Promise.resolve()
-        .then(() => this.handler(null, change))
-        .then(() => {
-          this._logInfo('upsert')
-          return this._db.upsert(this.seqId, (docSeq) => {
-            if (!docSeq[this.seqKey] || parseInt(docSeq[this.seqKey], 10) < parseInt(change.seq, 10)) {
-              docSeq[this.seqKey] = change.seq
-              this._logInfo('save seq', docSeq[this.seqKey])
-              return docSeq
-            }
-            else {
-              this._logError('seq is wrong', docSeq[this.seqKey])
-            }
+    this._changeStream.pipe(new stream.Writable({
+      write: (change, encoding, next) => {
+        if (this.seqId === change.id)  {
+          this._logInfo('seq is equals')
+          return
+        }
+        Promise.resolve()
+          .then(() => this.handler(null, change))
+          .then(() => {
+            this._logInfo('upsert', change.seq)
+            return this._db.upsert(this.seqId, (docSeq) => {
+              if (!docSeq[this.seqKey] || parseInt(docSeq[this.seqKey], 10) < parseInt(change.seq, 10)) {
+                docSeq[this.seqKey] = change.seq
+                this._logInfo('save seq', docSeq[this.seqKey])
+                return docSeq
+              }
+              else {
+                this._logError('seq is wrong', docSeq[this.seqKey])
+              }
+            })
           })
-        })
-        .then(() => {
-          this._logInfo('resume changes')
-          this._changeStream.resume()
-        })
-        .catch(error => {
-          this._logError('_onChange', error)
-          throw error
-        })
-    });
-
-    this._changeStream.on('error', (error) => {
-      this._changeStream.pause()
-      Promise.resolve()
-        .then(() => this.handler(error, null))
-        .then(() => {
-          this._logInfo('resume changes')
-          this._changeStream.resume()
-        })
-    })
+          .then(() => {
+            this._logInfo('resume changes')
+            next()
+          })
+          .catch(error => {
+            this._logError('_onChange', error)
+            next(error)
+            return this.handler(error, null)
+          })
+      },
+      objectMode: true
+    }))
   }
 }
 
