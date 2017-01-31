@@ -16,7 +16,7 @@ class CouchDbChangeHundler {
     this._logInfo = debug(`${this.logTag}:info`)
     this._logError = debug(`${this.logTag}:error`)
     this._registerSigInt()
-    this._db = new PouchDB(this.options.db)
+    this._db = new PouchDB(this.options.db, {skipSetup: true, ajax: {timeout: 120000}})
 
     this._logInfo('get last seq')
     return this._db.get(this.seqId)
