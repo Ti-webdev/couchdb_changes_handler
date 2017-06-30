@@ -1,6 +1,6 @@
 const debug = require('debug')
 const stream = require('stream')
-const ChangesStream = require('changes-stream')
+const ChangesStream = require('changes-stream-fix-retry')
 const PouchDB = require('pouchdb-core')
   .plugin(require('pouchdb-adapter-http'))
   .plugin(require('pouchdb-upsert'))
