@@ -15,7 +15,7 @@
     "url": "git+https://github.com/Ti-webdev/couchdb_changes_handler.git"
   },
   "dependencies": {
-    "changes-stream-fix-retry": "^2.2.1",
+    "changes-stream-fix-retry": "^2.2.2",
     "debug": "^2.6.8",
     "pouchdb-adapter-http": "^6.2.0",
     "pouchdb-core": "^6.2.0",
