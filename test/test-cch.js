@@ -5,7 +5,7 @@ const PouchDB = require('pouchdb-core')
   .plugin(require('pouchdb-adapter-memory'))
 
 // add instance_start_time to PouchDB.info()
-const ExpressPouchDB = function() {
+const ExpressPouchDB = function () {
   this.constructor = PouchDB
   PouchDB.apply(this, Array.prototype.slice.call(arguments))
   const startTime = new Date()
@@ -33,14 +33,12 @@ const DB = 'test'
 
 describe('cch', () => {
   let server
-  before(function() {
+  before(function () {
     server = express()
       .use(require('pouchdb-express-router')(ExpressPouchDB))
       .listen(PORT, HOST)
   })
-  after(function() {
-    server.close()
-  })
+  after(() => server.close())
 
   describe('handler', () => {
     const cch = new CouchDbChangeHundler()
@@ -52,32 +50,32 @@ describe('cch', () => {
       // filter: 'verification/init',
       // include_docs: true
     }
-    before(function(done) {
-      cch.start().then(() => done())
-    })
-    after(function() {
-      cch.stop()
-    })
+    before(() => cch.start())
+    after(() => cch.stop())
 
     describe('change', function () {
       let putResult
       let db = new PouchDB(DB)
-      before(function(done) {
-        cch.handler = sinon.spy(done)
-        db.put({_id: 'foo'}).then(result => putResult = result).then(() => done())
+      before(() => {
+        return new Promise(async (resolve) => {
+          cch.handler = sinon.spy(resolve)
+          putResult = await db.put({ _id: 'foo' }).then(result => result)
+        })
       })
-      it('first', function () {
+      it('first', () => {
         sinon.assert.calledOnce(cch.handler)
         cch.handler.args[0][1].id.should.equal('foo')
         cch.handler.args[0][1].changes[0].rev.should.equal(putResult.rev)
       })
-      describe('second', function() {
+      describe('second', function () {
         let putResultSecond
-        before(function(done) {
-          cch.handler = sinon.spy(done)
-          db.put({_id: putResult.id, _rev: putResult.rev, second: true}).then(result => putResultSecond = result)
+        before(() => {
+          return new Promise(async (resolve) => {
+            cch.handler = sinon.spy(resolve)
+            putResultSecond = await db.put({ _id: putResult.id, _rev: putResult.rev, second: true })
+          })
         })
-        it('result', function () {
+        it('result', () => {
           sinon.assert.calledOnce(cch.handler)
           should(cch.handler.args[0][1].second).be.true
           cch.handler.args[0][1].changes[0].rev.should.equal(putResultSecond.rev)

@@ -1,6 +1,6 @@
 {
   "name": "couchdb_changes_handler",
-  "version": "1.2.7",
+  "version": "1.2.8",
   "description": "",
   "main": "index.js",
   "engines": {
@@ -8,7 +8,8 @@
   },
   "engineStrict": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha",
+    "test:watch": "mocha -w"
   },
   "repository": {
     "type": "git",
@@ -16,9 +17,9 @@
   },
   "dependencies": {
     "changes-stream-fix-retry": "^2.2.2",
-    "debug": "^2.6.8",
-    "pouchdb-adapter-http": "^6.2.0",
-    "pouchdb-core": "^6.2.0",
+    "debug": "^4.3.1",
+    "pouchdb-adapter-http": "^7.2.2",
+    "pouchdb-core": "^7.2.2",
     "pouchdb-upsert": "^2.2.0"
   },
   "keywords": [
@@ -32,14 +33,14 @@
   },
   "homepage": "https://github.com/Ti-webdev/couchdb_changes_handler#readme",
   "devDependencies": {
-    "express": "^4.15.3",
-    "gulp": "^3.9.1",
-    "gulp-mocha": "^4.3.1",
+    "express": "^4.17.1",
+    "gulp": "^4.0.2",
+    "gulp-mocha": "^7.0.2",
     "gulp-util": "^3.0.8",
-    "pouchdb-adapter-memory": "^6.2.0",
-    "pouchdb-core": "^6.2.0",
-    "pouchdb-express-router": "0.0.9",
-    "should": "^11.2.1",
-    "sinon": "^2.3.6"
+    "pouchdb-adapter-memory": "^7.2.2",
+    "pouchdb-core": "^7.2.2",
+    "pouchdb-express-router": "0.0.11",
+    "should": "^13.2.3",
+    "sinon": "^9.2.3"
   }
 }
